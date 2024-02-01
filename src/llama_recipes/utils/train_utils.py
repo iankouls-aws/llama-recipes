@@ -357,7 +357,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
     results["avg_checkpoint_time"] = avg_checkpoint_time
 
     if train_config.flop_counter:
-        results["model_flops"]= TFlops
+        results["model_flops"]= get_total_flops(flop_counter) / 1e12
        
     if train_config.save_metrics:
         results["metrics_filename"] = metrics_filename

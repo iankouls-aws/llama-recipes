@@ -357,6 +357,8 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
     results["avg_epoch_time"] = avg_epoch_time
     results["avg_checkpoint_time"] = avg_checkpoint_time
 
+    global flop_counter
+
     if (train_config.flop_counter):
         results["model_flops"]= get_total_flops(flop_counter) / 1e12
        

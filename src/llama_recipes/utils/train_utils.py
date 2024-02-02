@@ -25,6 +25,7 @@ from llama_recipes.model_checkpointing import save_model_checkpoint, save_model_
 from llama_recipes.policies import fpSixteen,bfSixteen, get_llama_wrapper
 from llama_recipes.utils.memory_utils import MemoryTrace
 
+global flop_counter
 from llama_recipes.utils.tflop_counter import FlopCounterMode
 
 @contextlib.contextmanager
@@ -357,7 +358,6 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
     results["avg_checkpoint_time"] = avg_checkpoint_time
 
     if (train_config.flop_counter):
-        global flop_counter
         results["model_flops"]= get_total_flops(flop_counter) / 1e12
        
     if train_config.save_metrics:

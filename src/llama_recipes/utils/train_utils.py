@@ -233,7 +233,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
         epoch_end_time = time.perf_counter()-epoch_start_time
         epoch_times.append(epoch_end_time)
         # Reducing total_loss across all devices if there's more than one CUDA device
-        if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
+        '''if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
             dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
         elif torch.cuda.device_count() > 1 and train_config.enable_fsdp:
             if isinstance(total_loss, torch.Tensor):
@@ -241,7 +241,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
             else:
                 print(f"skipping dist.all_reduce for total_loss")
                 print(f"{total_loss=}, and type = {type(total_loss)}")
-                
+        '''
         train_epoch_loss = total_loss / len(train_dataloader)
         if train_config.enable_fsdp:
             train_epoch_loss = train_epoch_loss/world_size

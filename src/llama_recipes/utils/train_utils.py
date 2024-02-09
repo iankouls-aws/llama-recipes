@@ -246,7 +246,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
             total_loss += 3e-8
         size_t_dataloader = len(train_dataloader)
         if size_t_dataloader == 0:
-            print(f"WARNING - train dataloader has no data!}
+            print(f"WARNING - train dataloader has no data!")
             size_t_dataloader += 3e-8
 
         train_epoch_loss = total_loss / len(train_dataloader)

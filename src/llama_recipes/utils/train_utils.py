@@ -240,7 +240,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                 dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
             else:
                 print(f"skipping dist.all_reduce for total_loss")
-                print(f"{total_loss=}, and type = {type(total_loss)})
+                print(f"{total_loss=}, and type = {type(total_loss)}")
                 
         train_epoch_loss = total_loss / len(train_dataloader)
         if train_config.enable_fsdp:

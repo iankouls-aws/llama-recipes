@@ -5,6 +5,7 @@ context_length: '4096'
 dist_checkpoint_folder: fine-tuned
 dist_checkpoint_root_folder: PATH/to/save/FSDP/model
 enable_fsdp: 'True'
+enable_profiler: 'True'
 flop_counter: 'True'
 freeze_layers: 'False'
 fsdp_activation_checkpointing: 'True'
@@ -15,6 +16,7 @@ gradient_clipping: 'False'
 gradient_clipping_threshold: '1.0'
 low_cpu_fsdp: 'True'
 lr: '0.0001'
+max_steps_profiling: '10'
 mixed_precision: 'True'
 model_name: meta-llama/Llama-2-7b-hf
 num_epochs: '1'
@@ -25,12 +27,12 @@ optimizer: AdamW
 output_dir: .
 peft_method: lora
 profile_output_dir: profile_output
-profiler: 'True'
-pure_bf16: 'False'
+profiler: 'False'
+pure_bf16: 'True'
 quantization: 'False'
 run_validation: 'True'
 save_metrics: 'False'
-save_model: 'True'
+save_model: 'False'
 save_optimizer: 'False'
 seed: '42'
 sharding_strategy: ShardingStrategy.FULL_SHARD

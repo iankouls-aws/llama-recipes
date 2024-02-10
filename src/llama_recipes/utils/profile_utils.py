@@ -56,7 +56,5 @@ def maybe_run_profiler(config, *pos_args, **kwargs):
         ) as torch_profiler:
             yield torch_profiler
     else:
-        if rank==0:
-            print("Profiling disabled.")
         torch_profiler = contextlib.nullcontext()
         yield None

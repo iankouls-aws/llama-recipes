@@ -47,6 +47,7 @@ from llama_recipes.utils.train_utils import (
 from accelerate.utils import is_xpu_available
 
 def main(**kwargs):
+
     # Update the configuration for the training and sharding process
     train_config, fsdp_config = TRAIN_CONFIG(), FSDP_CONFIG()
     update_config((train_config, fsdp_config), **kwargs)
@@ -58,6 +59,7 @@ def main(**kwargs):
         torch.cuda.manual_seed(train_config.seed)
     torch.manual_seed(train_config.seed)
     random.seed(train_config.seed)
+
 
     if train_config.enable_fsdp:
         setup()
@@ -89,6 +91,7 @@ def main(**kwargs):
             raise Exception("latest pytorch nightly build is required to run with low_cpu_fsdp config, "
                             "please install latest nightly.")
         if rank == 0:
+            print(f"verifying model name: {train_config.model_name=}")
             model = LlamaForCausalLM.from_pretrained(
                 train_config.model_name,
                 load_in_8bit=True if train_config.quantization else None,

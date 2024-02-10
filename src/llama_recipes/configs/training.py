@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 @dataclass
 class train_config:
-    model_name: str="PATH/to/LLAMA/7B"
+    model_name: str="meta-llama/Llama-2-7b-hf"
     enable_fsdp: bool=False
     low_cpu_fsdp: bool=False
     run_validation: bool=True
@@ -33,9 +33,10 @@ class train_config:
     num_freeze_layers: int = 1
     quantization: bool = False
     one_gpu: bool = False
-    save_model: bool = True
+    save_model: bool = False
     dist_checkpoint_root_folder: str="PATH/to/save/FSDP/model" # will be used if using FSDP
     dist_checkpoint_folder: str="fine-tuned" # will be used if using FSDP
     save_optimizer: bool=False # will be used if using FSDP
     use_fast_kernels: bool = False # Enable using SDPA from PyTroch Accelerated Transformers, make use Flash Attention and Xformer memory-efficient kernels
     save_metrics: bool = False # saves training metrics to a json file for later plotting
+    enable_profiler: bool = True # runs profiler on the model

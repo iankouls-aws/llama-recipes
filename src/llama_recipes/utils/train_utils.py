@@ -124,14 +124,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                                     if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                                         scaler.step(optimizer)
                                         scaler.update()
-                                        optimizer.zero_grad()
-                                        # if profiler is active
-                                        if torch_profiler:
-                                            torch_profiler.step()
-                                            iter_count += 1
-                                            if iter_count > train_config.max_steps_profiling:
-                                                break
-                                        pbar.update(1)
+
                                 else:
                                     # regular backpropagation when fp16 is not used
                                     loss.backward()
@@ -140,16 +133,17 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                                     if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                                         optimizer.step()
                                         optimizer.zero_grad()
-                                        # if profiler is active
-                                        if torch_profiler:
-                                            torch_profiler.step()
-                                            iter_count += 1
-                                            if iter_count > train_config.max_steps_profiling:
-                                                break
-                                        pbar.update(1)
+
+                                optimizer.zero_grad()
+                                # if profiler is active
+                                if torch_profiler:
+                                    torch_profiler.step()
+                                    iter_count += 1
+                                    if iter_count > train_config.max_steps_profiling:
+                                        break
+                                pbar.update(1)
 
                         else:
-
                             loss = model(**batch).loss
                             loss = loss / gradient_accumulation_steps
                             total_loss += loss.detach().float()
@@ -159,83 +153,15 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                                 if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                                     scaler.step(optimizer)
                                     scaler.update()
-                                    optimizer.zero_grad()
-                                    # if profiler is active
-                                    if torch_profiler:
-                                        torch_profiler.step()
-                                        iter_count += 1
-                                        if iter_count > train_config.max_steps_profiling:
-                                            break
-                                    pbar.update(1)
+
                             else:
                                 # regular backpropagation when fp16 is not used
                                 loss.backward()
                                 if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                                     optimizer.step()
-                                    optimizer.zero_grad()
-                                    # if profiler is active
-                                    if torch_profiler:
-                                        torch_profiler.step()
-                                        iter_count += 1
-                                        if iter_count > train_config.max_steps_profiling:
-                                            break
 
-                                    pbar.update(1)
-                            pbar.set_description(f"Training Epoch: {epoch+1}/{train_config.num_epochs}, step {step}/{len(train_dataloader)} completed (loss: {loss.detach().float()})")
-                        pbar.close()
-
-                # is this eval step?  Should be labeled...
-                for step, batch in enumerate(train_dataloader):
-                    for key in batch.keys():
-                        if train_config.enable_fsdp:
-                            if is_xpu_available():
-                                batch[key] = batch[key].to(torch.device(f"xpu:{local_rank}"))
-                            else:
-                                batch[key] = batch[key].to(local_rank)
-                        else:
-
-                            if is_xpu_available():
-                                batch[key] = batch[key].to('xpu:0')
-                            else:
-                                batch[key] = batch[key].to('cuda:0')
-                    with autocast():
-                        loss = model(**batch).loss
-                    loss = loss / gradient_accumulation_steps
-                    if train_config.save_metrics:
-                        train_step_loss.append(loss.detach().float().item())
-                        train_step_perplexity.append(float(torch.exp(loss.detach().float())))
-                    total_loss += loss.detach().float()
-                    if train_config.use_fp16:
-                        # if fp16 is enabled, use gradient scaler to handle gradient update
-                        scaler.scale(loss).backward()
-                        if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
-                            if train_config.gradient_clipping and train_config.gradient_clipping_threshold > 0.0:
-                                scaler.unscale_(optimizer)
-                                if train_config.enable_fsdp:
-                                    model.clip_grad_norm_(train_config.gradient_clipping_threshold)
-                                else:
-                                    torch.nn.utils.clip_grad_norm_(model.parameters(), train_config.gradient_clipping_threshold)
-                            scaler.step(optimizer)
-                            scaler.update()
                             optimizer.zero_grad()
                             # if profiler is active
-                            if torch_profiler:
-                                torch_profiler.step()
-                                iter_count += 1
-                                if iter_count > train_config.max_steps_profiling:
-                                    break
-                            pbar.update(1)
-                    else:
-                        # regular backpropagation when fp16 is not used
-                        loss.backward()
-                        if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
-                            if train_config.gradient_clipping and train_config.gradient_clipping_threshold > 0.0:
-                                if train_config.enable_fsdp:
-                                    model.clip_grad_norm_(train_config.gradient_clipping_threshold)
-                                else:
-                                    torch.nn.utils.clip_grad_norm_(model.parameters(), train_config.gradient_clipping_threshold)
-                            optimizer.step()
-                            optimizer.zero_grad()
                             if torch_profiler:
                                 torch_profiler.step()
                                 iter_count += 1
@@ -247,13 +173,13 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
 
                     if train_config.save_metrics:
                         save_to_json(metrics_filename, train_step_loss, train_loss, train_step_perplexity, train_prep, val_step_loss, val_loss, val_step_perplexity, val_prep)
-                pbar.close()
 
+                pbar.close()
 
         epoch_end_time = time.perf_counter()-epoch_start_time
         epoch_times.append(epoch_end_time)
         # Reducing total_loss across all devices if there's more than one CUDA device
-        '''if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
+        if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
             dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
         elif torch.cuda.device_count() > 1 and train_config.enable_fsdp:
             if isinstance(total_loss, torch.Tensor):
@@ -261,7 +187,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
             else:
                 print(f"skipping dist.all_reduce for total_loss")
                 print(f"{total_loss=}, and type = {type(total_loss)}")
-        '''
+
         if total_loss == 0:
             total_loss += 3e-8
         size_t_dataloader = len(train_dataloader)

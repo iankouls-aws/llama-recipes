@@ -1,1 +1,1 @@
-torchrun --nproc_per_node=8 --nnodes=1 examples/finetuning.py --num_epochs=1 --batch_size_training=3 --enable_fsdp --low_cpu_fsdp --model_name meta-llama/Llama-2-7b-hf --output_dir .
+torchrun --nproc_per_node=8 --nnodes=1 --rdzv_id=101 --rdzv_endpoint="localhost:59995" examples/finetuning.py --num_epochs=1 --batch_size_training=3 --enable_fsdp --low_cpu_fsdp --model_name meta-llama/Llama-2-7b-hf --output_dir .

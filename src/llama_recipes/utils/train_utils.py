@@ -160,6 +160,9 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                                 if (step + 1) % gradient_accumulation_steps == 0 or step == len(train_dataloader) - 1:
                                     optimizer.step()
 
+                            if train_config.save_metrics:
+                                train_step_loss.append(loss.detach().float().item())
+                                train_step_perplexity.append(float(torch.exp(loss.detach().float())))
                             optimizer.zero_grad()
                             # if profiler is active
                             if torch_profiler:
@@ -528,9 +531,8 @@ def save_train_params(train_config, fsdp_config, rank):
     )
 
     save_dir = Path.cwd() / folder_name
-    # If the directory does not exist, create it
-    if not os.path.exists(save_dir):
-        os.makedirs(save_dir)
+    # rely on exist_ok to avoid false positives from check path
+    os.makedirs(save_dir, exist_ok=True)
     # Convert the dictionary to a YAML string
     config_yaml = yaml.dump(train_params_dict, indent=4)
     file_name = os.path.join(save_dir,'train_params.yaml')

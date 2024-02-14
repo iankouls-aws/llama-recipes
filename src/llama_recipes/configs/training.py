@@ -45,3 +45,4 @@ class train_config:
     enable_profiler: bool = False # runs profiler on the model
     max_steps_profiling: int = 10  # (min should be 10) if profiling enabled, stop training after this many iters
     use_global_loss: bool = False # if True, use global loss instead of local loss
+    llama_recipes_version: str = "2.14.2024" # version of the recipes

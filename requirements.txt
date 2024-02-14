@@ -1,6 +1,6 @@
 #torch>=2.0.1
 # torch==2.1.2
-torch==nightly
+torch==2.3.0.dev20240211
 accelerate
 appdirs
 loralib

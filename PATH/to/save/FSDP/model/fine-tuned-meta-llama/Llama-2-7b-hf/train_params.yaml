@@ -5,8 +5,8 @@ context_length: '4096'
 dist_checkpoint_folder: fine-tuned
 dist_checkpoint_root_folder: PATH/to/save/FSDP/model
 enable_fsdp: 'True'
-enable_profiler: 'True'
-flop_counter: 'True'
+enable_profiler: 'False'
+flop_counter: 'False'
 freeze_layers: 'False'
 fsdp_activation_checkpointing: 'True'
 fsdp_cpu_offload: 'False'
@@ -38,6 +38,7 @@ seed: '42'
 sharding_strategy: ShardingStrategy.FULL_SHARD
 use_fast_kernels: 'False'
 use_fp16: 'False'
+use_global_loss: 'False'
 use_peft: 'False'
 val_batch_size: '1'
 weight_decay: '0.0'

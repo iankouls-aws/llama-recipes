@@ -181,9 +181,13 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
 
         epoch_end_time = time.perf_counter()-epoch_start_time
         epoch_times.append(epoch_end_time)
+        # generic check:
+        if not total_loss.is_cuda:
+            print(f"WARNING - total_loss is not on CUDA device!")
         # Reducing total_loss across all devices if there's more than one CUDA device
         if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
             dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
+
         elif torch.cuda.device_count() > 1 and train_config.enable_fsdp and train_config.use_global_loss:
             if isinstance(total_loss, torch.Tensor):
                 dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
@@ -380,6 +384,8 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
             )
 
     # If there's more than one CUDA device, reduce evaluation loss across all devices
+    if not eval_loss.is_cuda:
+            print(f"WARNING - eval_loss is not on CUDA device!")
     if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
         dist.all_reduce(eval_loss, op=dist.ReduceOp.SUM)
     if torch.cuda.device_count() > 1 and train_config.enable_fsdp and train_config.use_global_loss:

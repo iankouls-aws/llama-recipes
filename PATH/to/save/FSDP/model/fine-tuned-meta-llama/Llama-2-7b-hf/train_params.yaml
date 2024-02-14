@@ -6,7 +6,7 @@ dist_checkpoint_folder: fine-tuned
 dist_checkpoint_root_folder: PATH/to/save/FSDP/model
 enable_fsdp: 'True'
 enable_profiler: 'False'
-flop_counter: 'False'
+flop_counter: 'True'
 freeze_layers: 'False'
 fsdp_activation_checkpointing: 'True'
 fsdp_cpu_offload: 'False'

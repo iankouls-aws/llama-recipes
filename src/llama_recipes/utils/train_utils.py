@@ -184,7 +184,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
         # Reducing total_loss across all devices if there's more than one CUDA device
         if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
             dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
-        elif torch.cuda.device_count() > 1 and train_config.enable_fsdp:
+        elif torch.cuda.device_count() > 1 and train_config.enable_fsdp and train_config.use_global_loss:
             if isinstance(total_loss, torch.Tensor):
                 dist.all_reduce(total_loss, op=dist.ReduceOp.SUM)
             else:
@@ -382,7 +382,7 @@ def evaluation(model,train_config, eval_dataloader, local_rank, tokenizer):
     # If there's more than one CUDA device, reduce evaluation loss across all devices
     if is_xpu_available() and (torch.xpu.device_count() > 1 and train_config.enable_fsdp):
         dist.all_reduce(eval_loss, op=dist.ReduceOp.SUM)
-    if torch.cuda.device_count() > 1 and train_config.enable_fsdp:
+    if torch.cuda.device_count() > 1 and train_config.enable_fsdp and train_config.use_global_loss:
         dist.all_reduce(eval_loss, op=dist.ReduceOp.SUM)
 
     # Compute average loss and perplexity

@@ -44,3 +44,4 @@ class train_config:
     save_metrics: bool = False # saves training metrics to a json file for later plotting
     enable_profiler: bool = False # runs profiler on the model
     max_steps_profiling: int = 10  # (min should be 10) if profiling enabled, stop training after this many iters
+    use_global_loss: bool = False # if True, use global loss instead of local loss

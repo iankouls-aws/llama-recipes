@@ -104,6 +104,10 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
                 total_length = len(train_dataloader)//gradient_accumulation_steps
                 pbar = tqdm(colour="blue", desc=f"Training Epoch: {epoch+1}", total=total_length, dynamic_ncols=True)
 
+
+                print("===================================")
+                print("len(train_dataloader) = " + len(train_dataloader))
+                print("===================================")
                 for step, batch in enumerate(train_dataloader):
                     gc.collect(1)
                     for key in batch.keys():

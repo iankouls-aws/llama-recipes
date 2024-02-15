@@ -78,6 +78,13 @@ def main(**kwargs):
         clear_gpu_cache(local_rank)
         setup_environ_flags(rank)
 
+    # lets document current torch version
+    if rank==0:
+        print(f"-------- version info ----------")
+        print(f"torch version: {torch.__version__}")
+        print(f"llama recipes version: {train_config.llama_recipes_version}")
+        print(f"--------------------------------")
+
     # Load the pre-trained model and setup its configuration
     use_cache = False if train_config.enable_fsdp else None
     if train_config.enable_fsdp and train_config.low_cpu_fsdp:

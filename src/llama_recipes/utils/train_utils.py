@@ -106,7 +106,7 @@ def train(model, train_dataloader,eval_dataloader, tokenizer, optimizer, lr_sche
 
 
                 print("===================================")
-                print("len(train_dataloader) = " + len(train_dataloader))
+                print("len(train_dataloader) = " + str(len(train_dataloader)))
                 print("===================================")
                 for step, batch in enumerate(train_dataloader):
                     gc.collect(1)
